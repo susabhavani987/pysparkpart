@@ -22,7 +22,7 @@ for i in range(1, 10001):
 
 # Define schema
 columns = ["id", "name", "department", "salary"]
-
+print("Default partitions:", df.rdd.getNumPartitions())
 # Create DataFrame
 df = spark.createDataFrame(data, columns)
 

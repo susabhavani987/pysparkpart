@@ -1,44 +1,36 @@
-name: Run PySpark Job
+name: PySpark CI/CD
 
 on:
   push:
     branches:
       - main
+  pull_request:
 
 jobs:
-  run-pyspark:
+  build-and-run:
     runs-on: ubuntu-latest
-    env:
-      MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
-      REDPANDA_USER:  ${{ secrets.REDPANDA_USERID }}
-      REDPANDA_PASS:  ${{ secrets.REDPANDA_PASS}}
+
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10.18
+          python-version: "3.10"
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install pyspark==3.3.2
-          pip install -r requirements.txt
-          pip install pymongo
-          pip install kafka-python
-      - name: Install rpk 
-        run: | 
-           curl -LO https://github.com/redpanda-data/redpanda/releases/latest/download/rpk-linux-amd64.zip 
-           unzip  rpk-linux-amd64.zip 
-           sudo mv rpk /usr/local/bin/ 
-      - name: Run rpk command 
-        run: | 
-           rpk --version 
-       
+          pip install pyspark faker
+
       - name: Run PySpark job
         run: |
-           rpk topic list --brokers  d1uqmc63h0primvt047g.any.us-east-1.mpx.prd.cloud.redpanda.com:9092 \
-              --user "$REDPANDA_USER" --password "$REDPANDA_PASS" --sasl-mechanism SCRAM-SHA-256 --detailed -v  --security-protocol=SASL_SSL 
+          python job.py
+
+      - name: Upload partitioned output
+        uses: actions/upload-artifact@v3
+        with:
+          name: employees-output
+          path: output/employees/
+
               

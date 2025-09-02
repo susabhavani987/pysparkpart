@@ -1,21 +1,42 @@
 from pyspark.sql import SparkSession
+import random
+from faker import Faker
 
-def main():
-    spark = SparkSession.builder \
-        .appName("SamplePySparkJob") \
-        .getOrCreate()
+# Initialize Faker
+fake = Faker()
 
-    # Example: Create DataFrame and write to CSV
-    df = spark.read.csv("data/orders.csv", header=True, inferSchema=True)
-    record_count = df.count()
-    ##data = [("Alice", 34), ("Bob", 45), ("Cathy", 29)]
-    ##df = spark.createDataFrame(data, ["name", "age"])
-    print(f"Number of records: {record_count}")
-    filtered_df = df.filter((df.Price > 900) & (df.Availability == "discontinued"))
-    filtered_df.show()
-    df.write.mode("overwrite").csv("output/sample_output")
+# Start Spark
+spark = SparkSession.builder \
+    .appName("RandomDataExample") \
+    .getOrCreate()
 
-    spark.stop()
+# Generate 10,000 random records
+data = []
+departments = ["HR", "Finance", "IT", "Sales", "Marketing"]
 
-if __name__ == "__main__":
-    main()
+for i in range(1, 10001):
+    name = fake.first_name()
+    dept = random.choice(departments)
+    salary = random.randint(40000, 120000)
+    data.append((i, name, dept, salary))
+
+# Define schema
+columns = ["id", "name", "department", "salary"]
+
+# Create DataFrame
+df = spark.createDataFrame(data, columns)
+
+# Show first 5 rows
+df.show(5)
+
+# Number of partitions
+print("Default partitions:", df.rdd.getNumPartitions())
+
+# Repartition into 8 partitions
+df_repart = df.repartition(8)
+print("After repartition(8):", df_repart.rdd.getNumPartitions())
+
+# Save partitioned by department
+df.write.partitionBy("department").mode("overwrite").parquet("output/employees_10k")
+
+spark.stop()

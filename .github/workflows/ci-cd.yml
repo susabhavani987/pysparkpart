@@ -36,5 +36,6 @@ jobs:
       - name: List output files
         run: |
           echo "Listing output directory..."
+          echo "$PWD"
           ls -R output || echo "No output folder found"
     

@@ -55,4 +55,5 @@ jobs:
           git add output/employees_10k || echo "No changes to add"
           git commit -m "Add parquet output from workflow" || echo "Nothing to commit"
           git push
-    
+        env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

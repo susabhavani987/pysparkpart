@@ -33,4 +33,8 @@ jobs:
           name: employees-output
           path: output/employees/
 
-              
+      - name: List output files
+        run: |
+          echo "Listing output directory..."
+          ls -R output || echo "No output folder found"
+    

@@ -1,0 +1,61 @@
+name: PySpark CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: write  # allow workflow to push commits
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install pyspark faker
+
+      - name: Run PySpark job
+        run: |
+          python my_job.py
+
+      - name: Upload partitioned output
+        uses: actions/upload-artifact@v4
+        with:
+          name: employees-output
+          path: output/employees/
+
+      - name: List output files
+        run: |
+          echo "Listing output directory..."
+          echo "$PWD"
+          ls -R output || echo "No output folder found"
+          
+      - name: Upload parquet output
+        uses: actions/upload-artifact@v4
+        with:
+           name: employees-output
+           path: /home/runner/work/pysparkpart/pysparkpart/output/employees_10k/**/*
+
+    
+      - name: Commit parquet output to repo
+        if: github.ref == 'refs/heads/main' # only on main branch
+        run: |
+          cd /home/runner/work/pysparkpart/pysparkpart
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add output/employees_10k || echo "No changes to add"
+          git commit -m "Add parquet output from workflow" || echo "Nothing to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

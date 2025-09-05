@@ -5,6 +5,7 @@ Created on Thu Aug 21 20:27:51 2025
 @author: vij_c
 """
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
 
 # Start Spark
 

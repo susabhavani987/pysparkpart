@@ -6,6 +6,7 @@ Created on Thu Aug 21 20:27:51 2025
 """
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
+from pyspark.sql.functions import col, trim
 
 # Start Spark
 

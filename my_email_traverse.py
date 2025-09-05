@@ -24,10 +24,5 @@ columns = ["Name", "phone", "email1", "email2"]
 
 df = spark.createDataFrame(data, columns)
 
-# Write DataFrame to Parquet
-df.write.mode("overwrite").parquet("output/customers.parquet")
-print("✅ Parquet file written to output/customers.parquet")
 
-# Read it back
-parquet_df = spark.read.parquet("output/customers.parquet")
-parquet_df.show()
+df.show()

@@ -25,7 +25,6 @@ jobs:
         run: |
           pip install pyspark faker
 
-
       - name: Run PySpark job
         run: |
           python  my_email_traverse.py

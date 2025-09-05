@@ -24,6 +24,12 @@ data = [
 columns = ["Name", "phone", "email1", "email2"]
 
 df = spark.createDataFrame(data, columns)
-df_filtered = df.filter(col("phone").isNotNull() & col("email1").isNotNull() & col("email2").isNotNull() )
+df_filtered = df.filter(
+    (col("phone").isNotNull() & (trim(col("phone")) != "")) &
+    (col("email1").isNotNull() & (trim(col("email1")) != "")) &
+    (col("email2").isNotNull() & (trim(col("email2")) != ""))
+)
+
+df_filtered.show(truncate=False)
 
 df_filtered.show()
